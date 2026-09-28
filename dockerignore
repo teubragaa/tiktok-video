@@ -1,0 +1,5 @@
+dados/
+downloads/
+__pycache__/
+*.mp4
+.git

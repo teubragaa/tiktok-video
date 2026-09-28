@@ -1,0 +1,23 @@
+services:
+  # Interface web: docker compose up web  ->  http://localhost:8501
+  web:
+    build: .
+    image: baixador-video
+    entrypoint:
+      - streamlit
+      - run
+      - /app/app.py
+      - --server.address=0.0.0.0
+      - --server.port=8501
+      - --browser.gatherUsageStats=false
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./dados:/data
+
+  # Linha de comando: docker compose run --rm cli "URL"
+  cli:
+    build: .
+    image: baixador-video
+    volumes:
+      - ./dados:/data

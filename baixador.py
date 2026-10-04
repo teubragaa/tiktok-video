@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Baixador de vídeos (TikTok, Reels, Shorts, YouTube etc.) na melhor
-qualidade disponível, sem limite de resolução ou codec.
+Baixador de vídeos (TikTok, Reels, Shorts, Pinterest, YouTube etc.) na
+melhor qualidade disponível, sem limite de resolução ou codec.
 
 Uso:
     python baixador.py "https://www.tiktok.com/@user/video/123"
@@ -16,18 +16,29 @@ from yt_dlp import YoutubeDL
 
 def baixar(url: str, pasta: str = "downloads") -> Path:
     """Baixa o vídeo escolhendo sempre o vídeo e o áudio de maior
-    qualidade disponíveis (resolução, depois fps, depois bitrate),
-    juntando os dois num único MP4."""
+    qualidade disponíveis, juntando os dois num único MP4 (sem recodificar,
+    então não há perda de qualidade).
+
+    O nome do arquivo é curto: PLATAFORMA_ID.mp4 (ex.: TikTok_7234567890.mp4).
+    """
     Path(pasta).mkdir(exist_ok=True)
     opts = {
-        # bestvideo + bestaudio separados = maior qualidade possível;
-        # "b" como último recurso, caso a origem só ofereça um arquivo único
+        # melhor vídeo + melhor áudio separados; "b" só como último recurso
         "format": "bv*+ba/b",
-        # ordena todas as opções pela maior qualidade real, ignorando codec
-        "format_sort": ["res", "fps", "vbr", "abr"],
+        # ie_pref: evita as versões com marca d'água (ex.: TikTok);
+        # depois ordena por resolução, fps, HDR e bitrate reais
+        "format_sort": ["ie_pref", "res", "fps", "hdr", "vbr", "tbr", "abr"],
         "merge_output_format": "mp4",
-        "outtmpl": f"{pasta}/%(uploader)s - %(title).60s [%(id)s].%(ext)s",
+        # nome curto e sempre único, sem título/uploader gigantes
+        "outtmpl": f"{pasta}/%(extractor_key)s_%(id).50s.%(ext)s",
+        # remove caracteres problemáticos e limita o tamanho total do nome
+        "restrictfilenames": True,
+        "trim_file_name": 80,
         "noplaylist": True,
+        # qualidade acima de velocidade: tenta de novo se a conexão falhar
+        "retries": 10,
+        "fragment_retries": 10,
+        "file_access_retries": 5,
     }
     with YoutubeDL(opts) as ydl:
         info = ydl.extract_info(url, download=True)

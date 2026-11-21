@@ -3,4 +3,6 @@ __pycache__/
 build/
 dist/
 *.spec
+*.ico
 *.mp4
+build_exe.ps1

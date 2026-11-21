@@ -1,5 +1,6 @@
-dados/
 downloads/
 __pycache__/
+build/
+dist/
+*.spec
 *.mp4
-.git
